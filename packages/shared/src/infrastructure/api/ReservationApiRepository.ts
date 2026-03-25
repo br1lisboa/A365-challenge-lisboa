@@ -24,6 +24,8 @@ export class ReservationApiRepository implements ReservationRepository {
     }
 
     const data = await response.json();
-    return ReservationMapper.toPaginatedDomain(data);
+    return ReservationMapper.toPaginatedDomain(
+      data as Parameters<typeof ReservationMapper.toPaginatedDomain>[0]
+    );
   }
 }

@@ -18,7 +18,7 @@ export class InsightApiRepository implements InsightRepository {
       );
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as { message: string; generatedAt?: string };
 
     return {
       message: data.message,

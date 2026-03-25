@@ -102,7 +102,6 @@ export default function HomeScreen() {
           data={data.resultados}
           renderItem={renderItem}
           keyExtractor={keyExtractor}
-          estimatedItemSize={280}
           contentContainerStyle={styles.listContent}
           refreshing={isLoading}
           onRefresh={refetch}

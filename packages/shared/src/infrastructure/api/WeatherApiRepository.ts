@@ -18,6 +18,9 @@ export class WeatherApiRepository implements WeatherRepository {
     }
 
     const data = await response.json();
-    return WeatherMapper.toDomain(data, city);
+    return WeatherMapper.toDomain(
+      data as Parameters<typeof WeatherMapper.toDomain>[0],
+      city
+    );
   }
 }
