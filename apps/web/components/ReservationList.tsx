@@ -3,6 +3,8 @@
 import type { PaginatedReservations } from "@a365/shared/domain/entities/Reservation";
 import { ReservationCard } from "./ReservationCard";
 import { Pagination } from "./Pagination";
+import { Card } from "./ui/Card";
+import { Skeleton } from "./ui/Skeleton";
 
 interface ReservationListProps {
   data: PaginatedReservations | undefined;
@@ -14,6 +16,42 @@ interface ReservationListProps {
   onPageChange: (page: number) => void;
 }
 
+function ListSkeleton() {
+  return (
+    <div className="flex flex-col gap-4">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <Card key={i} variant="elevated" className="!shadow-none">
+          <Skeleton width="w-40" height="h-5" className="mb-3" />
+          <Skeleton width="w-60" className="mb-2" />
+          <Skeleton width="w-32" />
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+function ErrorState({ message }: { message: string }) {
+  return (
+    <Card variant="error" className="text-center py-12">
+      <p className="text-status-error-text font-medium">Error al buscar reservas</p>
+      <p className="text-status-error-text/70 text-body mt-1">{message}</p>
+    </Card>
+  );
+}
+
+function EmptyResult() {
+  return (
+    <Card variant="flat" className="text-center py-12">
+      <p className="text-foreground-secondary font-medium">
+        No se encontraron reservas
+      </p>
+      <p className="text-foreground-muted text-body mt-1">
+        Intenta con otro nombre o numero de reserva
+      </p>
+    </Card>
+  );
+}
+
 export function ReservationList({
   data,
   isLoading,
@@ -23,68 +61,28 @@ export function ReservationList({
   page,
   onPageChange,
 }: ReservationListProps) {
-  if (!hasSearched) {
-    return (
-      <div className="text-center py-16 text-gray-400">
-        <p className="text-lg">Busca por nombre de pasajero o numero de reserva</p>
-        <p className="text-sm mt-1">Los resultados aparecen aqui</p>
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex flex-col gap-4">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div
-            key={i}
-            className="bg-white rounded-xl border border-gray-200 p-5 animate-pulse"
-          >
-            <div className="h-5 w-40 bg-gray-200 rounded mb-3" />
-            <div className="h-4 w-60 bg-gray-200 rounded mb-2" />
-            <div className="h-4 w-32 bg-gray-200 rounded" />
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (isError) {
-    return (
-      <div className="text-center py-12 bg-red-50 rounded-xl border border-red-200">
-        <p className="text-red-700 font-medium">Error al buscar reservas</p>
-        <p className="text-red-500 text-sm mt-1">
-          {error?.message ?? "Intente nuevamente"}
-        </p>
-      </div>
-    );
-  }
-
-  if (!data || data.resultados.length === 0) {
-    return (
-      <div className="text-center py-12 bg-gray-50 rounded-xl border border-gray-200">
-        <p className="text-gray-500 font-medium">No se encontraron reservas</p>
-        <p className="text-gray-400 text-sm mt-1">
-          Intenta con otro nombre o numero de reserva
-        </p>
-      </div>
-    );
-  }
+  if (!hasSearched) return null;
+  if (isLoading) return <ListSkeleton />;
+  if (isError) return <ErrorState message={error?.message ?? "Intente nuevamente"} />;
+  if (!data || data.resultados.length === 0) return <EmptyResult />;
 
   const totalPages = Math.ceil(data.total / data.pageSize);
 
   return (
     <div>
-      <p className="text-sm text-gray-500 mb-4">
+      <p className="text-body text-foreground-secondary mb-4">
         {data.total} resultado{data.total !== 1 ? "s" : ""} encontrado
         {data.total !== 1 ? "s" : ""}
       </p>
       <div className="flex flex-col gap-4">
-        {data.resultados.map((reservation) => (
-          <ReservationCard
+        {data.resultados.map((reservation, index) => (
+          <div
             key={reservation.reserva}
-            reservation={reservation}
-          />
+            className="animate-fade-in-up opacity-0"
+            style={{ animationDelay: `${index * 75}ms` }}
+          >
+            <ReservationCard reservation={reservation} />
+          </div>
         ))}
       </div>
       <Pagination

@@ -1,10 +1,17 @@
 import { NextResponse } from "next/server";
 
 const WEATHER_URL = "https://api.assist-365.com/api/weather/current";
-const AUTH_KEY =
-  "A365_AUTH_cbc0260c7c2067809eefd2b03a77925dae35e2adf3ab0d6553a867b88dbe5515_SECURE_2024";
 
 export async function GET(request: Request) {
+  const authKey = process.env.A365_WEATHER_AUTH_KEY;
+
+  if (!authKey) {
+    return NextResponse.json(
+      { error: "A365_WEATHER_AUTH_KEY not configured" },
+      { status: 500 }
+    );
+  }
+
   const { searchParams } = new URL(request.url);
   const city = searchParams.get("city");
 
@@ -22,7 +29,7 @@ export async function GET(request: Request) {
     url.searchParams.set("lang", "es");
 
     const response = await fetch(url.toString(), {
-      headers: { "X-System-Auth-Key": AUTH_KEY },
+      headers: { "X-System-Auth-Key": authKey },
     });
 
     if (!response.ok) {
@@ -32,15 +39,22 @@ export async function GET(request: Request) {
     const json = await response.json();
     const data = json.data;
 
-    return NextResponse.json({
-      city: data.city,
-      temperature: data.temperature,
-      description: data.weather?.description ?? "No disponible",
-      humidity: data.humidity,
-      icon: data.weather?.icon ?? "",
-      feels_like: data.feels_like,
-      wind_speed: data.wind?.speed ?? 0,
-    });
+    return NextResponse.json(
+      {
+        city: data.city,
+        temperature: data.temperature,
+        description: data.weather?.description ?? "No disponible",
+        humidity: data.humidity,
+        icon: data.weather?.icon ?? "",
+        feels_like: data.feels_like,
+        wind_speed: data.wind?.speed ?? 0,
+      },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+        },
+      }
+    );
   } catch (error) {
     console.error("Weather proxy error:", error);
     return NextResponse.json(

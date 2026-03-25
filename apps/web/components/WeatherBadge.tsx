@@ -1,36 +1,39 @@
 "use client";
 
-import { useWeather } from "@a365/shared/presentation/hooks/useWeather";
+import type { Weather } from "@a365/shared/domain/entities/Weather";
+import { Skeleton } from "./ui/Skeleton";
 
 interface WeatherBadgeProps {
-  city: string;
+  weather: Weather | undefined;
+  isLoading: boolean;
+  isError: boolean;
 }
 
-export function WeatherBadge({ city }: WeatherBadgeProps) {
-  const { data: weather, isLoading, isError } = useWeather(city);
-
+export function WeatherBadge({ weather, isLoading, isError }: WeatherBadgeProps) {
   if (isLoading) {
     return (
-      <div className="flex items-center gap-2 text-xs text-gray-400 animate-pulse">
-        <div className="h-4 w-20 bg-gray-200 rounded" />
+      <div className="flex items-center gap-2">
+        <Skeleton width="w-20" />
       </div>
     );
   }
 
   if (isError || !weather) {
     return (
-      <span className="text-xs text-gray-400">Clima no disponible</span>
+      <span className="text-caption text-foreground-muted">Clima no disponible</span>
     );
   }
 
   return (
-    <div className="flex items-center gap-2 text-sm">
-      <span className="font-semibold text-gray-700">
+    <div className="flex items-center gap-2 text-body">
+      <span className="font-semibold text-foreground-primary">
         {Math.round(weather.temperature)}C
       </span>
-      <span className="text-gray-500 capitalize">{weather.description}</span>
-      <span className="text-gray-400">|</span>
-      <span className="text-gray-400 text-xs">
+      <span className="text-foreground-secondary capitalize">
+        {weather.description}
+      </span>
+      <span className="text-foreground-muted">|</span>
+      <span className="text-foreground-muted text-caption">
         Humedad {weather.humidity}%
       </span>
     </div>

@@ -1,17 +1,13 @@
 import { useState, useCallback } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ActivityIndicator,
-  Pressable,
-} from "react-native";
+import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useSearchReservations } from "@a365/shared/presentation/hooks/useSearchReservations";
 import type { Reservation } from "@a365/shared/domain/entities/Reservation";
-import { SearchBar } from "../components/SearchBar";
-import { ReservationCard } from "../components/ReservationCard";
-import { EmptyState } from "../components/EmptyState";
+import { SearchBar } from "../components/features/SearchBar";
+import { ReservationListItem } from "../components/features/reservation-card";
+import { EmptyState } from "../components/ui/EmptyState";
+import { Pagination } from "../components/features/Pagination";
+import { colors, spacing, fontSize } from "../theme/tokens";
 
 const PAGE_SIZE = 5;
 
@@ -21,9 +17,10 @@ export default function HomeScreen() {
     reserva: "",
   });
   const [page, setPage] = useState(1);
-  const [hasSearched, setHasSearched] = useState(false);
 
-  const { data, isLoading, isError, error } = useSearchReservations({
+  const hasSearched = Boolean(searchParams.pasajero || searchParams.reserva);
+
+  const { data, isLoading, isError, error, refetch } = useSearchReservations({
     pasajero: searchParams.pasajero || undefined,
     reserva: searchParams.reserva || undefined,
     page,
@@ -34,14 +31,19 @@ export default function HomeScreen() {
     (params: { pasajero: string; reserva: string }) => {
       setSearchParams(params);
       setPage(1);
-      setHasSearched(true);
     },
     []
   );
 
   const renderItem = useCallback(
     ({ item }: { item: Reservation }) => (
-      <ReservationCard reservation={item} />
+      <ReservationListItem
+        reserva={item.reserva}
+        pasajero={item.pasajero}
+        destino={item.destino}
+        estado={item.estado}
+        fechaRegreso={item.fecha_regreso}
+      />
     ),
     []
   );
@@ -57,16 +59,17 @@ export default function HomeScreen() {
     if (!hasSearched) {
       return (
         <EmptyState
+          variant="initial"
           title="Busca por nombre de pasajero o numero de reserva"
           subtitle="Los resultados aparecen aqui"
         />
       );
     }
 
-    if (isLoading) {
+    if (isLoading && !data) {
       return (
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color="#2563eb" />
+          <ActivityIndicator size="large" color={colors.primary.default} />
           <Text style={styles.loadingText}>Buscando reservas...</Text>
         </View>
       );
@@ -75,8 +78,10 @@ export default function HomeScreen() {
     if (isError) {
       return (
         <EmptyState
+          variant="error"
           title="Error al buscar reservas"
           subtitle={error?.message ?? "Intente nuevamente"}
+          onRetry={() => refetch()}
         />
       );
     }
@@ -84,6 +89,7 @@ export default function HomeScreen() {
     if (!data || data.resultados.length === 0) {
       return (
         <EmptyState
+          variant="empty"
           title="No se encontraron reservas"
           subtitle="Intenta con otro nombre o numero de reserva"
         />
@@ -99,33 +105,17 @@ export default function HomeScreen() {
           data={data.resultados}
           renderItem={renderItem}
           keyExtractor={keyExtractor}
-          estimatedItemSize={220}
+          estimatedItemSize={280}
           contentContainerStyle={styles.listContent}
+          refreshing={isLoading}
+          onRefresh={refetch}
+          keyboardDismissMode="on-drag"
         />
-        {totalPages > 1 && (
-          <View style={styles.pagination}>
-            <Pressable
-              onPress={() => setPage((p) => p - 1)}
-              disabled={page <= 1}
-              style={[styles.pageButton, page <= 1 && styles.pageButtonDisabled]}
-            >
-              <Text style={styles.pageButtonText}>Anterior</Text>
-            </Pressable>
-            <Text style={styles.pageInfo}>
-              {page} de {totalPages}
-            </Text>
-            <Pressable
-              onPress={() => setPage((p) => p + 1)}
-              disabled={page >= totalPages}
-              style={[
-                styles.pageButton,
-                page >= totalPages && styles.pageButtonDisabled,
-              ]}
-            >
-              <Text style={styles.pageButtonText}>Siguiente</Text>
-            </Pressable>
-          </View>
-        )}
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
       </View>
     );
   };
@@ -141,56 +131,28 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#f9fafb",
+    backgroundColor: colors.background,
   },
   centered: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    gap: 12,
+    gap: spacing.md,
   },
   loadingText: {
-    color: "#6b7280",
-    fontSize: 14,
+    color: colors.text.tertiary,
+    fontSize: fontSize.base,
   },
   listContainer: {
     flex: 1,
   },
   resultCount: {
-    fontSize: 13,
-    color: "#6b7280",
-    paddingHorizontal: 16,
-    paddingBottom: 8,
+    fontSize: fontSize.sm,
+    color: colors.text.tertiary,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.sm,
   },
   listContent: {
-    paddingBottom: 16,
-  },
-  pagination: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 16,
-    paddingVertical: 16,
-    borderTopWidth: 1,
-    borderTopColor: "#e5e7eb",
-  },
-  pageButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: "#d1d5db",
-    borderRadius: 8,
-    borderCurve: "continuous",
-  },
-  pageButtonDisabled: {
-    opacity: 0.5,
-  },
-  pageButtonText: {
-    fontSize: 13,
-    color: "#374151",
-  },
-  pageInfo: {
-    fontSize: 13,
-    color: "#6b7280",
+    paddingBottom: spacing.lg,
   },
 });

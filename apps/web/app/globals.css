@@ -1,3 +1,83 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --brand-50: #eff6ff;
+    --brand-100: #dbeafe;
+    --brand-200: #bfdbfe;
+    --brand-500: #3b82f6;
+    --brand-600: #2563eb;
+    --brand-700: #1d4ed8;
+    --brand-900: #1e3a5f;
+
+    --surface-primary: #ffffff;
+    --surface-secondary: #f9fafb;
+    --surface-muted: #f3f4f6;
+    --surface-border: #e5e7eb;
+    --surface-border-strong: #d1d5db;
+
+    --foreground-primary: #111827;
+    --foreground-secondary: #6b7280;
+    --foreground-muted: #9ca3af;
+    --foreground-inverse: #ffffff;
+
+    --status-success-bg: #dcfce7;
+    --status-success-text: #15803d;
+    --status-error-bg: #fef2f2;
+    --status-error-text: #b91c1c;
+    --status-error-bg-muted: #fca5a5;
+    --status-warning-bg: #fefce8;
+    --status-warning-text: #a16207;
+    --status-info-bg: #eff6ff;
+    --status-info-text: #1d4ed8;
+    --status-info-bg-muted: #bfdbfe;
+    --status-info-border: #dbeafe;
+    --status-info-text-strong: #1e3a5f;
+
+    --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-card-hover: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+
+  .dark {
+    --brand-50: #0f1a2e;
+    --brand-100: #172554;
+    --brand-200: #1e3a5f;
+    --brand-500: #60a5fa;
+    --brand-600: #3b82f6;
+    --brand-700: #2563eb;
+    --brand-900: #93c5fd;
+
+    --surface-primary: #111827;
+    --surface-secondary: #0f172a;
+    --surface-muted: #1e293b;
+    --surface-border: #1e293b;
+    --surface-border-strong: #334155;
+
+    --foreground-primary: #f9fafb;
+    --foreground-secondary: #9ca3af;
+    --foreground-muted: #6b7280;
+    --foreground-inverse: #111827;
+
+    --status-success-bg: #052e16;
+    --status-success-text: #4ade80;
+    --status-error-bg: #450a0a;
+    --status-error-text: #fca5a5;
+    --status-error-bg-muted: #7f1d1d;
+    --status-warning-bg: #422006;
+    --status-warning-text: #fbbf24;
+    --status-info-bg: #0f1a2e;
+    --status-info-text: #60a5fa;
+    --status-info-bg-muted: #172554;
+    --status-info-border: #1e3a5f;
+    --status-info-text-strong: #bfdbfe;
+
+    --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-card-hover: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  }
+}
+
+body {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}

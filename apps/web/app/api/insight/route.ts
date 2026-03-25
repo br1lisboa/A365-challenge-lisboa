@@ -85,13 +85,8 @@ export async function POST(request: Request) {
     console.error("Insight generation error:", error);
 
     return NextResponse.json(
-      {
-        message:
-          "No se pudo generar el insight en este momento. Intente nuevamente.",
-        generatedAt: new Date().toISOString(),
-        error: true,
-      },
-      { status: 200 }
+      { error: "Failed to generate insight" },
+      { status: 500 }
     );
   }
 }
