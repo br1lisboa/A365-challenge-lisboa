@@ -4,10 +4,11 @@ import { GenerateInsight } from "../../application/use-cases/GenerateInsight";
 import { InsightApiRepository } from "../../infrastructure/api/InsightApiRepository";
 
 function getBaseUrl(): string {
-  if (typeof window !== "undefined") {
+  if (typeof window !== "undefined" && typeof window.location !== "undefined" && window.location.origin !== "undefined") {
     return window.location.origin;
   }
-  return "http://localhost:3000";
+  // React Native or SSR: use local network IP
+  return "http://192.168.1.84:3000";
 }
 
 const repository = new InsightApiRepository(getBaseUrl());

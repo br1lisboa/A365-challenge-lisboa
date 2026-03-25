@@ -3,10 +3,11 @@ import type { Weather } from "../../domain/entities/Weather";
 import { WeatherMapper } from "../mappers/WeatherMapper";
 
 function getBaseUrl(): string {
-  if (typeof window !== "undefined") {
+  if (typeof window !== "undefined" && typeof window.location !== "undefined" && window.location.origin !== "undefined") {
     return window.location.origin;
   }
-  return "http://localhost:3000";
+  // React Native or SSR: use local network IP
+  return "http://192.168.1.84:3000";
 }
 
 export class WeatherApiRepository implements WeatherRepository {
