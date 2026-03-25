@@ -1,14 +1,7 @@
 import type { WeatherRepository } from "../../domain/repositories/WeatherRepository";
 import type { Weather } from "../../domain/entities/Weather";
 import { WeatherMapper } from "../mappers/WeatherMapper";
-
-function getBaseUrl(): string {
-  if (typeof window !== "undefined" && typeof window.location !== "undefined" && window.location.origin !== "undefined") {
-    return window.location.origin;
-  }
-  // React Native or SSR: use local network IP
-  return "http://192.168.1.84:3000";
-}
+import { getBaseUrl } from "../config/baseUrl";
 
 export class WeatherApiRepository implements WeatherRepository {
   async getByCity(city: string): Promise<Weather> {

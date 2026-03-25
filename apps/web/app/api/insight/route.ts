@@ -11,20 +11,23 @@ interface InsightRequestBody {
   };
 }
 
-const SYSTEM_PROMPT = `Eres un asistente inteligente para agentes de asistencia al viajero de la empresa Assist-365.
-Tu rol es generar un breve mensaje de asistencia (2-3 oraciones máximo) combinando los datos del viajero.
-El mensaje debe ser conciso, útil y proactivo. Debe ayudar al agente a tomar decisiones sobre cómo asistir al pasajero.
-No uses formato markdown ni bullets. Escribe en texto plano, en español.`;
+const SYSTEM_PROMPT = `Eres un asistente interno para agentes de asistencia al viajero de Assist-365.
+Generás un mensaje breve dirigido al agente (no al pasajero) para que pueda asistir mejor.
+
+Estructura del mensaje:
+1. Situación: nombrar al pasajero, su destino y el clima actual (1 oración).
+2. Sugerencias para el agente: 2-3 recomendaciones concretas que el agente puede hacerle al pasajero según el clima y el estado del viaje (1-2 oraciones).
+
+Tono: profesional pero cercano, como un compañero de trabajo que te ayuda. Usá "podrías sugerirle", "es buen momento para recomendarle".
+Extensión: máximo 3-4 oraciones. Texto plano en español, sin markdown ni bullets.
+
+Ejemplo:
+Datos: Pasajero: Ana Torres, Destino: Madrid, Estado: confirmada, Regreso: 2025-02-10, Clima: cielo despejado, 6°C
+Respuesta: La pasajera Ana Torres se encuentra en Madrid con clima frío y cielo despejado (6°C). Podrías sugerirle abrigarse bien para recorrer el Retiro o la Gran Vía, aprovechar para visitar el Museo del Prado en las horas más frías y llevar una bufanda para las tardes. Como su viaje finaliza pronto, también es buen momento para recordarle los datos de su vuelo de regreso.`;
 
 function buildUserPrompt(data: InsightRequestBody): string {
-  return `Datos del viajero:
-- Pasajero: ${data.pasajero}
-- Destino: ${data.destino}
-- Estado de reserva: ${data.estado}
-- Fecha de regreso: ${data.fecha_regreso}
-- Clima actual en destino: ${data.clima.description}, ${data.clima.temperature}°C
-
-Genera un insight breve y accionable para el agente de asistencia.`;
+  return `Datos: Pasajero: ${data.pasajero}, Destino: ${data.destino}, Estado: ${data.estado}, Regreso: ${data.fecha_regreso}, Clima: ${data.clima.description}, ${data.clima.temperature}°C
+Respuesta:`;
 }
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
@@ -61,8 +64,8 @@ export async function POST(request: Request) {
           { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: buildUserPrompt(body) },
         ],
-        max_tokens: 200,
-        temperature: 0.7,
+        max_tokens: 250,
+        temperature: 0.8,
       }),
     });
 
