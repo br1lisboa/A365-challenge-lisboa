@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
 
 interface InsightRequestBody {
   pasajero: string;
@@ -28,12 +27,14 @@ function buildUserPrompt(data: InsightRequestBody): string {
 Genera un insight breve y accionable para el agente de asistencia.`;
 }
 
+const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
+
 export async function POST(request: Request) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.OPENROUTER_API_KEY;
 
   if (!apiKey) {
     return NextResponse.json(
-      { error: "API key not configured" },
+      { error: "OPENROUTER_API_KEY not configured" },
       { status: 500 }
     );
   }
@@ -48,25 +49,36 @@ export async function POST(request: Request) {
       );
     }
 
-    const client = new Anthropic({ apiKey });
-
-    const response = await client.messages.create({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 200,
-      system: SYSTEM_PROMPT,
-      messages: [
-        {
-          role: "user",
-          content: buildUserPrompt(body),
-        },
-      ],
+    const response = await fetch(OPENROUTER_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.0-flash-001",
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: buildUserPrompt(body) },
+        ],
+        max_tokens: 200,
+        temperature: 0.7,
+      }),
     });
 
-    const textBlock = response.content.find((block) => block.type === "text");
-    const message = textBlock?.text ?? "No se pudo generar el insight.";
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error("OpenRouter API error:", response.status, errorData);
+      throw new Error(`OpenRouter API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const message =
+      data.choices?.[0]?.message?.content ??
+      "No se pudo generar el insight.";
 
     return NextResponse.json({
-      message,
+      message: message.trim(),
       generatedAt: new Date().toISOString(),
     });
   } catch (error) {
