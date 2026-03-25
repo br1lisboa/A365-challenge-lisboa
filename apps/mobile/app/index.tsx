@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useReducer, useCallback } from "react";
 import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useSearchReservations } from "@a365/shared/presentation/hooks/useSearchReservations";
@@ -8,15 +8,13 @@ import { ReservationListItem } from "../components/features/reservation-card";
 import { EmptyState } from "../components/ui/EmptyState";
 import { Pagination } from "../components/features/Pagination";
 import { colors, spacing, fontSize } from "../theme/tokens";
+import { searchReducer, initialSearchState } from "../reducers/searchReducer";
 
 const PAGE_SIZE = 5;
 
 export default function HomeScreen() {
-  const [searchParams, setSearchParams] = useState({
-    pasajero: "",
-    reserva: "",
-  });
-  const [page, setPage] = useState(1);
+  const [state, dispatch] = useReducer(searchReducer, initialSearchState);
+  const { searchParams, page } = state;
 
   const hasSearched = Boolean(searchParams.pasajero || searchParams.reserva);
 
@@ -29,8 +27,7 @@ export default function HomeScreen() {
 
   const handleSearch = useCallback(
     (params: { pasajero: string; reserva: string }) => {
-      setSearchParams(params);
-      setPage(1);
+      dispatch({ type: "SEARCH", payload: params });
     },
     []
   );
@@ -114,7 +111,7 @@ export default function HomeScreen() {
         <Pagination
           page={page}
           totalPages={totalPages}
-          onPageChange={setPage}
+          onPageChange={(p) => dispatch({ type: "SET_PAGE", payload: p })}
         />
       </View>
     );
