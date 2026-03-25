@@ -34,11 +34,9 @@ pnpm install
 Crear el archivo `apps/web/.env.local` con estas keys:
 
 ```bash
-OPENROUTER_API_KEY=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
-A365_WEATHER_AUTH_KEY=A365_AUTH_cbc0260c7c2067809eefd2b03a77925dae35e2adf3ab0d6553a867b88dbe5515_SECURE_2024
+OPENROUTER_API_KEY=
+A365_WEATHER_AUTH_KEY=
 ```
-
-Ambas keys estan aca a proposito para que puedan probar el proyecto sin fricciones. La de OpenRouter es una key gratuita que cree exclusivamente para este challenge, y la de weather es la que viene en el enunciado.
 
 ### 3. Levantar la web
 
