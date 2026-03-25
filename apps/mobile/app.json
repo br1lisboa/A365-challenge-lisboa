@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "A365 Agent Assistant",
+    "slug": "a365-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "a365",
+    "platforms": ["ios", "android"],
+    "plugins": ["expo-router"]
+  }
+}

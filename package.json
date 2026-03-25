@@ -1,0 +1,17 @@
+{
+  "name": "a365-challenge",
+  "private": true,
+  "scripts": {
+    "dev:web": "turbo run dev --filter=@a365/web",
+    "dev:mobile": "turbo run dev --filter=@a365/mobile",
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint"
+  },
+  "devDependencies": {
+    "turbo": "2.3.3",
+    "typescript": "5.6.3"
+  },
+  "packageManager": "pnpm@9.15.0"
+}
